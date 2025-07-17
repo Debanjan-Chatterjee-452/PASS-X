@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vaultium - Password Manager</title>
+  <link rel="stylesheet" href="PW.css" />
+</head>
+<body>
+  <header>
+
+    <div class="logo-title" onclick="location.reload()" title="Click to Refresh">
+  <img src="PassX1 (1).png" alt="PASS X logo" class="logo-img clickable-logo" width="80"/>
+  <h1 class="clickable-logo">PASS X</h1>
+</div>
+
+    <nav>
+      <a href="#">Home</a>
+      <a href="#" onclick="location.reload()">Refresh</a>
+      
+    </nav>
+  </header>
+
+  <div class="container">
+    <form id="passwordForm">
+      <input type="text" id="website" placeholder="Website" required />
+      <input type="text" id="username" placeholder="Username" required />
+      <div class="password-wrapper">
+        <input type="password" id="password" placeholder="Password" required />
+        <span class="toggle-password" onclick="toggleInputPassword()">👁️</span>
+      </div>
+      <button type="submit">Add Password</button>
+    </form>
+
+    <h2>Saved Passwords</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Website</th>
+          <th>Username</th>
+          <th>Password</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="passwordList"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const passwordForm = document.getElementById('passwordForm');
+    const passwordList = document.getElementById('passwordList');
+
+    let passwords = JSON.parse(localStorage.getItem('passwords')) || [];
+
+    function displayPasswords() {
+      passwordList.innerHTML = '';
+      passwords.forEach((entry, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${entry.website}</td>
+          <td>${entry.username}</td>
+          <td>
+            <span id="pw-${index}">••••••••</span>
+            <button class="show-btn" onclick="toggleSavedPassword(${index})">👁️</button>
+          </td>
+          <td>
+            <button class="delete-btn" onclick="deletePassword(${index})">Delete</button>
+          </td>
+        `;
+        passwordList.appendChild(row);
+      });
+    }
+
+    passwordForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const website = document.getElementById('website').value;
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      passwords.push({ website, username, password });
+      localStorage.setItem('passwords', JSON.stringify(passwords));
+      passwordForm.reset();
+      displayPasswords();
+    });
+
+    function deletePassword(index) {
+      passwords.splice(index, 1);
+      localStorage.setItem('passwords', JSON.stringify(passwords));
+      displayPasswords();
+    }
+
+    function toggleSavedPassword(index) {
+      const span = document.getElementById(`pw-${index}`);
+      const original = passwords[index].password;
+      if (span.textContent === '••••••••') {
+        span.textContent = original;
+      } else {
+        span.textContent = '••••••••';
+      }
+    }
+
+    function toggleInputPassword() {
+      const input = document.getElementById('password');
+      const eye = document.querySelector('.toggle-password');
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        eye.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        eye.textContent = '👁️';
+      }
+    }
+
+    displayPasswords();
+  </script>
+</body>
+</html>
